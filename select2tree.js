@@ -19,6 +19,7 @@
     if (data.element) {
       //insert span element and add 'parent' property
       var $wrapper = $("<span></span><span>" + data.text + "</span>");
+      var $switchSpn = $wrapper.first();
       var $element = $(data.element);
       var $select = $element.parent();
       var $container = $(container);
@@ -27,28 +28,31 @@
       $container.attr("data-parent", $element.data("parent"));
 
       var hasChilds = $select.find("option[data-parent='" + $element.val() + "']").length > 0;
-
-      if (hasChilds) {
-
-        var $switchSpn = $wrapper.first();
-
+      var isSearching = $(".select2-search__field").val().length > 0;
+      
+      if (isSearching) {
+        $switchSpn.css({
+          "padding": "0 10px 0 10px",
+        });
+      } else if (hasChilds) {
         $switchSpn.addClass("switch-tree glyphicon");
-        if ($switchSpn.hasClass("glyphicon-chevron-down"))
-          $switchSpn.removeClass("glyphicon-chevron-down")
-          .addClass("glyphicon-chevron-right");
-        else
+        if ($switchSpn.hasClass("glyphicon-chevron-right"))
           $switchSpn.removeClass("glyphicon-chevron-right")
           .addClass("glyphicon-chevron-down");
+        else
+          $switchSpn.removeClass("glyphicon-chevron-down")
+          .addClass("glyphicon-chevron-right");
 
         $switchSpn.css({
-          "padding": "0 10px",
+          "padding": "0 10px 0 10px",
           "cursor": "pointer"
         });
       }
 
       if (hasParent($element)) {
         var paddingLeft = getTreeLevel($select, $element.val()) * 2;
-        $container.css("padding-left", paddingLeft + "em");
+        if (!hasChilds) paddingLeft++;
+        $container.css("margin-left", paddingLeft + "em");
       }
 
       return $wrapper;
@@ -79,8 +83,9 @@
       });
     } else {
 
-      $select.find(".select2-results__options li[data-parent='']").appendTo(".select2-results__options ul");
-      $select.find(".select2-results__options li[data-parent='']").each(function() {
+      $(".select2-results__options li[data-parent!='']").css("display", "none");
+      $(".select2-results__options li[data-parent='']").appendTo(".select2-results__options ul");
+      $(".select2-results__options li[data-parent='']").each(function() {
         moveOption($select, $(this).attr("val"));
       });
     }
@@ -89,9 +94,10 @@
   function switchAction($select, id, open) {
 
     var childs = $(".select2-results__options li[data-parent='" + id + "']");
-    childs.each(function() {
-      switchAction($select, $(this).attr("val"), open);
-    });
+    //expand childs.
+    //childs.each(function() {
+    //  switchAction($select, $(this).attr("val"), open);
+    //});
 
     var parent = $(".select2-results__options li[val=" + id + "] span[class]:eq(0)");
     if (open) {
@@ -134,6 +140,7 @@
     var $select = $element.parent();
     var childMatched = checkForChildMatch($select, $element, term);
     if (childMatched || data.text.toLowerCase().indexOf(term) >= 0) {
+      $("#" + data._resultId).css("display", "unset");
       return data;
     }
     return null;
