@@ -1,0 +1,42 @@
+<html>
+
+	<head>
+		<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.6/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/i18n/zh-CN.js"></script>
+		<script src="select2tree.js"></script>
+	</head>
+	<body>
+		<div id="banner-message">
+		  <select id="tree1" style="width: 550px">
+			<option value="5" data-parent="">GRUPO 1</option>
+			<option value="2" data-parent="5">SUBGRUPO 1.0</option>
+			<option value="1" data-parent="5">SUBGRUPO 1.1</option>
+			<option value="7" data-parent="1">SUBGRUPO 1.1.0</option>
+
+			<option value="8" data-parent="1">SG 1.1.1</option>
+			<option value="9" data-parent="8">SG 1.1.1.0</option>
+
+			<option value="6" data-parent="">GRUPO 2</option>
+			<option value="3" data-parent="6">SUBGRUPO 2.1</option>
+			<option value="4" data-parent="6">sg 2.2</option>
+		  </select>
+
+		  <select id="tree2" style="width: 550px">
+			<option value="6" data-parent="">GRUPO 2</option>
+			<option value="3" data-parent="6">TEST 2.1</option>
+			<option value="4" data-parent="6">Atest 2.2</option>
+		  </select>
+		</div>
+		<script type="text/javascript">
+			$(function() {
+				$("#tree1").select2tree();
+				$("#tree2").select2tree();
+			});
+		</script>
+	</body>
+
+</html>
