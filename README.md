@@ -30,3 +30,9 @@ Sample of structure and initialization:
 [Demo JSFiddler](https://jsfiddle.net/kikoDev/6vmzqbn9/)
 
 
+### Screens
+
+![Alt text](screenDemo1.png?raw=true "Demo1")
+![Alt text](screenDemo2.png?raw=true "Demo2")
+![Alt text](screenDemo3.png?raw=true "Demo3")
+
