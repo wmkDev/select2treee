@@ -32,7 +32,7 @@
 
         var $switchSpn = $wrapper.first();
 
-        $switchSpn.addClass("switch glyphicon");
+        $switchSpn.addClass("switch-tree glyphicon");
         if ($switchSpn.hasClass("glyphicon-chevron-down"))
           $switchSpn.removeClass("glyphicon-chevron-down")
           .addClass("glyphicon-chevron-right");
@@ -71,25 +71,26 @@
   }
 
 
-  function moveOption($this, id) {
+  function moveOption($select, id) {
     if (id) {
-      $this.find(".select2-results__options li[data-parent='" + id + "']").insertAfter(".select2-results__options li[val=" + id + "]");
-      $this.find(".select2-results__options li[data-parent='" + id + "']").each(function() {
-        moveOption($this, $(this).attr("val"));
+      $select.find(".select2-results__options li[data-parent='" + id + "']").insertAfter(".select2-results__options li[val=" + id + "]");
+      $select.find(".select2-results__options li[data-parent='" + id + "']").each(function() {
+        moveOption($select, $(this).attr("val"));
       });
     } else {
-      $this.find(".select2-results__options li[data-parent='']").appendTo(".select2-results__options ul");
-      $this.find(".select2-results__options li[data-parent='']").each(function() {
-        moveOption($this, $(this).attr("val"));
+
+      $select.find(".select2-results__options li[data-parent='']").appendTo(".select2-results__options ul");
+      $select.find(".select2-results__options li[data-parent='']").each(function() {
+        moveOption($select, $(this).attr("val"));
       });
     }
   }
 
-  function switchAction($this, id, open) {
+  function switchAction($select, id, open) {
 
     var childs = $(".select2-results__options li[data-parent='" + id + "']");
     childs.each(function() {
-      switchAction($this, $(this).attr("val"), open);
+      switchAction($select, $(this).attr("val"), open);
     });
 
     var parent = $(".select2-results__options li[val=" + id + "] span[class]:eq(0)");
@@ -104,84 +105,83 @@
     }
   }
 
-  function open($this) {
+  function open($select) {
     setTimeout(function() {
 
-      moveOption($this);
+      moveOption($select);
       //override mousedown for collapse/expand 
-      $(".switch").mousedown(function() {
-        switchAction($this, $(this).parent().attr("val"), $(this).hasClass("glyphicon-chevron-right"));
+      $(".switch-tree").mousedown(function() {
+        switchAction($select, $(this).parent().attr("val"), $(this).hasClass("glyphicon-chevron-right"));
         event.stopPropagation();
       });
       //override mouseup to nothing
-      $(".switch").mouseup(function() {
+      $(".switch-tree").mouseup(function() {
         return false;
       });
 
     }, 0);
   }
-})(jQuery);
 
-
-function matchCustom(params, data) {
-  if ($.trim(params.term) === '') {
-    return data;
-  }
-  if (typeof data.text === 'undefined') {
+  function matchCustom(params, data) {
+    if ($.trim(params.term) === '') {
+      return data;
+    }
+    if (typeof data.text === 'undefined') {
+      return null;
+    }
+    var term = params.term.toLowerCase();
+    var $element = $(data.element);
+    var $select = $element.parent();
+    var childMatched = checkForChildMatch($select, $element, term);
+    if (childMatched || data.text.toLowerCase().indexOf(term) >= 0) {
+      return data;
+    }
     return null;
   }
-  var term = params.term.toLowerCase();
-  var $element = $(data.element);
-  var $select = $element.parent();
-  var childMatched = checkForChildMatch($select, $element, term);
-  if (childMatched || data.text.toLowerCase().indexOf(term) > -1) {
-    return data;
-  }
-  return null;
-}
 
-function checkForChildMatch($select, $element, term) {
-  var matched = false;
-  var childs = $select.find('option[data-parent=' + $element.val() + ']');
-  var childMatchFilter = jQuery.makeArray(childs).some(s => s.text.toLowerCase().indexOf(term) > -1)
-  if (childMatchFilter) return true;
+  function checkForChildMatch($select, $element, term) {
+    var matched = false;
+    var childs = $select.find('option[data-parent=' + $element.val() + ']');
+    var childMatchFilter = jQuery.makeArray(childs).some(s => s.text.toLowerCase().indexOf(term) >= 0)
+    if (childMatchFilter) return true;
 
-  childs.each(function() {
-    var innerChild = checkForChildMatch($select, $(this), term);
-    if (innerChild) matched = true;
-  });
+    childs.each(function() {
+      var innerChild = checkForChildMatch($select, $(this), term);
+      if (innerChild) matched = true;
+    });
 
-  return matched;
-}
-
-function templateSelectionCustom(item) {
-  if (!item.id || item.id == "-1") {
-    return $("<i class='fa fa-hand-o-right'></i><span> " + item.text + "</span>");
+    return matched;
   }
 
-  var $element = $(item.element);
-  var $select = $element.parent();
+  function templateSelectionCustom(item) {
+    if (!item.id || item.id == "-1") {
+      return $("<i class='fa fa-hand-o-right'></i><span> " + item.text + "</span>");
+    }
 
-  var parentsText = getParentText($select, $element);
-  if (parentsText != '') parentsText += ' - ';
+    var $element = $(item.element);
+    var $select = $element.parent();
 
-  var $state = $(
-    "<span> " + parentsText + item.text + "</span>"
-  );
-  return $state;
-}
+    var parentsText = getParentText($select, $element);
+    if (parentsText != '') parentsText += ' - ';
 
-function getParentText($select, $element) {
-  var text = '';
-  var parentVal = $element.data('parent');
-  if (parentVal == '') return text;
-
-  var parent = $select.find('option[value=' + parentVal + ']');
-
-  if (parent) {
-    text = getParentText($select, parent);
-    if (text != '') text += ' - ';
-    text += parent.text();
+    var $state = $(
+      "<span> " + parentsText + item.text + "</span>"
+    );
+    return $state;
   }
-  return text;
-}
+
+  function getParentText($select, $element) {
+    var text = '';
+    var parentVal = $element.data('parent');
+    if (parentVal == '') return text;
+
+    var parent = $select.find('option[value=' + parentVal + ']');
+
+    if (parent) {
+      text = getParentText($select, parent);
+      if (text != '') text += ' - ';
+      text += parent.text();
+    }
+    return text;
+  }
+})(jQuery);
